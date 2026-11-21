@@ -1,6 +1,6 @@
 /* HoraLog service worker: funciona sin señal y maneja los avisos */
-const CACHE = 'horalog-v1';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png',
+const CACHE = 'horalog-v2';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 
 self.addEventListener('install', e => {
@@ -16,8 +16,8 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.hostname.endsWith('supabase.co')) return; // datos: siempre a la red
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(r => { caches.open(CACHE).then(c => c.put('/index.html', r.clone())); return r; })
-      .catch(() => caches.match('/index.html')));
+    e.respondWith(fetch(req).then(r => { caches.open(CACHE).then(c => c.put('./index.html', r.clone())); return r; })
+      .catch(() => caches.match('./index.html')));
     return;
   }
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
@@ -32,9 +32,9 @@ self.addEventListener('push', e => {
   try { d = e.data ? e.data.json() : {}; } catch { d = { title: 'HoraLog', body: e.data && e.data.text() }; }
   e.waitUntil(self.registration.showNotification(d.title || 'HoraLog', {
     body: d.body || '¿Qué hiciste en la última hora?', tag: d.tag || 'hl-hourly', renotify: true,
-    icon: '/icon-192.png', badge: '/icon-192.png',
+    icon: './icon-192.png', badge: './icon-192.png',
     actions: [{ action: 'igual', title: 'Sí, lo mismo' }, { action: 'registrar', title: 'Otra cosa' }],
-    data: { url: '/?accion=registrar' }
+    data: { url: './?accion=registrar' }
   }));
 });
 
@@ -43,8 +43,8 @@ self.addEventListener('notificationclick', e => {
   const accion = e.action || 'registrar';
   e.waitUntil((async () => {
     const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    const c = all.find(x => new URL(x.url).origin === location.origin);
+    const c = all.find(x => x.url.startsWith(self.registration.scope));
     if (c) { await c.focus(); c.postMessage({ accion }); }
-    else await self.clients.openWindow('/?accion=' + accion);
+    else await self.clients.openWindow(self.registration.scope + '?accion=' + accion);
   })());
 });

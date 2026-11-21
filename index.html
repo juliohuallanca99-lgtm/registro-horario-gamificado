@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>HoraLog</title>
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -327,7 +327,7 @@ function isNetErr(e){ return !navigator.onLine || /fetch|network|Failed to fetch
 
 /* ---------- sesión ---------- */
 async function boot(){
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
   const { data } = await sb.auth.getSession();
   if (data.session) await enter(data.session.user); else show('login');
 }
@@ -705,8 +705,8 @@ $('#notifBtn').onclick = async () => {
 async function notify(title, body, tag = 'hl-hourly'){
   if (!('Notification' in window) || Notification.permission !== 'granted') { toast(body); return; }
   const reg = await navigator.serviceWorker?.getRegistration();
-  const opts = { body, tag, renotify: true, icon: '/icon-192.png', badge: '/icon-192.png',
-    actions: [{ action: 'igual', title: 'Sí, lo mismo' }, { action: 'registrar', title: 'Otra cosa' }], data: { url: '/?accion=registrar' } };
+  const opts = { body, tag, renotify: true, icon: './icon-192.png', badge: './icon-192.png',
+    actions: [{ action: 'igual', title: 'Sí, lo mismo' }, { action: 'registrar', title: 'Otra cosa' }], data: { url: './?accion=registrar' } };
   if (reg) reg.showNotification(title, opts); else new Notification(title, { body });
 }
 $('#testNotif').onclick = () => notify('HoraLog · prueba', `¿Qué hiciste desde las ${hhmm(lastEnd())}?`);
@@ -760,7 +760,7 @@ function runAction(a){
 }
 function handleUrlAction(){
   const a = new URLSearchParams(location.search).get('accion');
-  if (a) { history.replaceState(null, '', '/'); S.day = todayStr(); runAction(a); }
+  if (a) { history.replaceState(null, '', location.pathname); S.day = todayStr(); runAction(a); }
 }
 navigator.serviceWorker?.addEventListener('message', ev => { if (ev.data?.accion) { S.day = todayStr(); loadDay().then(() => runAction(ev.data.accion)); } });
 
