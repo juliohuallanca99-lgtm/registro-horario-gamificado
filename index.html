@@ -106,6 +106,19 @@ nav.bottom button.on{color:var(--accent)}
 .actions{display:flex;gap:10px;margin-top:16px}
 .actions .btn{flex:1}
 
+/* Alarma */
+.alarm{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:rgba(40,8,8,.82);animation:flash 1s ease-in-out infinite alternate}
+@keyframes flash{from{background:rgba(40,8,8,.82)}to{background:rgba(120,20,10,.88)}}
+.alarm-card{width:100%;max-width:440px;background:var(--card);border:2px solid var(--accent);border-radius:22px;padding:24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.alarm-card .bell{font-size:56px;line-height:1;animation:ring .5s ease-in-out infinite}
+@keyframes ring{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+.alarm-card h2{margin:12px 0 6px;font-size:22px}
+.alarm-card p{margin:0 0 18px;color:var(--muted)}
+.alarm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.alarm-actions .btn{min-height:54px;padding:0 10px;white-space:nowrap}
+.alarm-actions .wide{grid-column:1/-1}
+input[type=range]{padding:0;accent-color:var(--accent)}
+
 /* Toast */
 .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:40;background:#0f2a18;border:1px solid #166534;color:#bbf7d0;padding:10px 16px;border-radius:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s}
 .toast.bad{background:#2a1111;border-color:#7f1d1d;color:#fecaca}
@@ -225,9 +238,43 @@ nav.bottom button.on{color:var(--accent)}
       </div>
       <label for="sInt">Aviso cada</label>
       <select id="sInt"><option value="30">30 minutos</option><option value="60">1 hora</option><option value="90">1 hora 30</option><option value="120">2 horas</option></select>
-      <div class="btnrow" style="margin-top:14px">
-        <button class="btn" id="testNotif">Probar aviso</button>
+      <h3 style="margin:18px 0 0">Alarma</h3>
+      <div class="row2">
+        <div><label for="aTone">Tono</label>
+          <select id="aTone"><option value="clasica">Alarma clásica (bip-bip)</option><option value="sirena">Sirena</option><option value="campana">Campana</option><option value="digital">Despertador digital</option><option value="off">Sin sonido</option></select></div>
+        <div><label for="aDur">Sonar durante</label>
+          <select id="aDur"><option value="15">15 segundos</option><option value="30">30 segundos</option><option value="60">1 minuto</option><option value="120">2 minutos</option></select></div>
       </div>
+      <label for="aVol">Volumen</label><input id="aVol" type="range" min="0.1" max="1" step="0.05">
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn primary" id="testNotif">Probar alarma</button>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin:10px 0 0">La alarma suena con la página abierta (también en otra pestaña). Si el celular bloquea la app, solo suena la notificación del sistema.</p>
+    </div>
+    <div class="card">
+      <h3>Mi contraseña</h3>
+      <div class="row2">
+        <div><label for="pw1">Nueva contraseña</label><input id="pw1" type="password" autocomplete="new-password" minlength="8"></div>
+        <div><label for="pw2">Repetir</label><input id="pw2" type="password" autocomplete="new-password" minlength="8"></div>
+      </div>
+      <div class="btnrow" style="margin-top:14px"><button class="btn" id="pwBtn">Cambiar contraseña</button></div>
+    </div>
+    <div class="card hidden" id="usersCard">
+      <h3>Usuarios de HoraLog</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 4px">Las cuentas que crees aquí solo entran a HoraLog (no a req-jjc). Cada persona ve únicamente sus propios registros.</p>
+      <div class="row2">
+        <div><label for="uUser">Usuario</label><input id="uUser" placeholder="ej. maria.lopez" autocapitalize="off" autocomplete="off"></div>
+        <div><label for="uPass">Contraseña inicial</label><input id="uPass" type="text" autocomplete="off" placeholder="mínimo 8 caracteres"></div>
+      </div>
+      <label for="uName">Nombre completo</label><input id="uName">
+      <div class="row2">
+        <div><label for="uJob">Cargo</label><input id="uJob"></div>
+        <div><label for="uProj">Proyecto</label><input id="uProj" placeholder="CC0154"></div>
+      </div>
+      <label for="uMail">Correo (opcional)</label><input id="uMail" type="email" placeholder="para entrar también con el correo">
+      <div class="err" id="uErr"></div>
+      <div class="btnrow"><button class="btn primary" id="uCreate">Crear usuario</button></div>
+      <div class="tl" id="uList" style="margin-top:16px"></div>
     </div>
     <div class="btnrow">
       <button class="btn primary" id="saveSettings">Guardar ajustes</button>
@@ -277,6 +324,20 @@ nav.bottom button.on{color:var(--accent)}
     </div>
   </div>
 </section>
+
+<div class="alarm hidden" id="alarm" role="alertdialog" aria-modal="true" aria-labelledby="alTitle">
+  <div class="alarm-card">
+    <div class="bell" aria-hidden="true">⏰</div>
+    <h2 id="alTitle">¡Hora de registrar!</h2>
+    <p id="alBody"></p>
+    <div class="alarm-actions">
+      <button class="btn primary" id="alSame">Sí, lo mismo</button>
+      <button class="btn primary" id="alOther">Otra cosa</button>
+      <button class="btn" id="alSnooze">Posponer 10 min</button>
+      <button class="btn" id="alStop">Silenciar</button>
+    </div>
+  </div>
+</div>
 
 <div id="toast" class="toast hidden"></div>
 
@@ -346,7 +407,7 @@ $('#loginForm').addEventListener('submit', async e => {
   try {
     let email = $('#lUser').value.trim();
     if (!email.includes('@')) {
-      const { data, error } = await sb.rpc('correo_ingreso', { p_dato: email });
+      const { data, error } = await sb.rpc('hl_correo_ingreso', { p_dato: email });
       if (error || !data) throw new Error('Usuario no encontrado');
       email = data;
     }
@@ -766,6 +827,9 @@ function fillSettings(){
   $('#sName').value = p.full_name || ''; $('#sJob').value = p.job_title || ''; $('#sProj').value = p.project_code || '';
   $('#sStart').value = S.schedule.shift_start.slice(0,5); $('#sEnd').value = S.schedule.shift_end.slice(0,5);
   $('#sInt').value = String(S.schedule.reminder_interval_min || 60);
+  const a = alarmCfg(); $('#aTone').value = a.tone; $('#aVol').value = a.vol; $('#aDur').value = String(a.dur);
+  $('#usersCard').classList.toggle('hidden', !p.is_admin);
+  if (p.is_admin) loadUsers();
 }
 $('#saveSettings').onclick = async () => {
   const prof = { full_name: $('#sName').value.trim(), job_title: $('#sJob').value.trim() || null, project_code: $('#sProj').value.trim() || null };
@@ -776,6 +840,63 @@ $('#saveSettings').onclick = async () => {
   Object.assign(S.profile, prof); Object.assign(S.schedule, sch);
   await loadConfig(); render(); scheduleReminder(); toast('Ajustes guardados');
 };
+$('#pwBtn').onclick = async () => {
+  const a = $('#pw1').value, b = $('#pw2').value;
+  if (a.length < 8) return toast('La contraseña debe tener al menos 8 caracteres', true);
+  if (a !== b) return toast('Las contraseñas no coinciden', true);
+  const { error } = await sb.auth.updateUser({ password: a });
+  if (error) return toast('No se pudo cambiar: ' + error.message, true);
+  $('#pw1').value = $('#pw2').value = ''; toast('Contraseña cambiada');
+};
+
+/* ---------- usuarios (solo administrador) ---------- */
+async function loadUsers(){
+  const box = $('#uList');
+  const { data, error } = await sb.rpc('hl_listar_usuarios');
+  if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  box.innerHTML = '';
+  for (const u of data || []){
+    const mine = u.id === S.user.id;
+    const row = document.createElement('div');
+    row.className = 'item'; row.style.gridTemplateColumns = '1fr';
+    if (!u.active) row.style.opacity = '.55';
+    row.innerHTML = `<div><div class="d"><b>${esc(u.username || '—')}</b> · ${esc(u.full_name || 'Sin nombre')}</div>
+      <div class="meta">${u.is_admin ? '<span class="tag hl">Administrador</span>' : ''}${u.active ? '' : '<span class="tag dossier">Desactivado</span>'}
+      <span class="tag">${u.last_sign_in_at ? 'Último ingreso ' + dmy(todayStr(new Date(u.last_sign_in_at))) : 'Aún no ingresa'}</span></div></div>
+      <div class="btnrow" style="gap:8px"></div>`;
+    if (!mine && !u.is_admin){
+      const btns = row.querySelector('.btnrow');
+      const pw = document.createElement('button'); pw.className = 'btn'; pw.style.minHeight = '40px'; pw.textContent = 'Nueva contraseña';
+      pw.title = 'Poner una contraseña nueva';
+      pw.onclick = async () => {
+        const c = prompt(`Nueva contraseña para ${u.username} (mínimo 8 caracteres):`); if (!c) return;
+        const { error } = await sb.rpc('hl_admin_usuario', { p_id: u.id, p_clave: c });
+        toast(error ? error.message : 'Contraseña actualizada', !!error);
+      };
+      const act = document.createElement('button'); act.className = 'btn' + (u.active ? ' danger' : ''); act.style.minHeight = '40px'; act.textContent = u.active ? 'Desactivar' : 'Activar';
+      act.onclick = async () => {
+        if (u.active && !confirm(`¿Desactivar a ${u.username}? Ya no podrá ingresar.`)) return;
+        const { error } = await sb.rpc('hl_admin_usuario', { p_id: u.id, p_activo: !u.active });
+        if (error) toast(error.message, true); else loadUsers();
+      };
+      btns.append(pw, act);
+    }
+    box.appendChild(row);
+  }
+}
+$('#uCreate').onclick = async () => {
+  $('#uErr').textContent = '';
+  const args = { p_usuario: $('#uUser').value, p_nombre: $('#uName').value, p_clave: $('#uPass').value,
+    p_cargo: $('#uJob').value || null, p_proyecto: $('#uProj').value || null, p_correo: $('#uMail').value || null };
+  $('#uCreate').disabled = true;
+  const { error } = await sb.rpc('hl_crear_usuario', args);
+  $('#uCreate').disabled = false;
+  if (error) return $('#uErr').textContent = error.message;
+  toast(`Usuario ${args.p_usuario.trim().toLowerCase()} creado`);
+  ['#uUser','#uPass','#uName','#uJob','#uProj','#uMail'].forEach(id => $(id).value = '');
+  loadUsers();
+};
+
 $('#logout').onclick = async () => { await sb.auth.signOut(); localStorage.removeItem('hl_cfg'); location.reload(); };
 
 /* ---------- avisos (dentro de la app) ---------- */
@@ -791,11 +912,81 @@ $('#notifBtn').onclick = async () => {
 async function notify(title, body, tag = 'hl-hourly'){
   if (!('Notification' in window) || Notification.permission !== 'granted') { toast(body); return; }
   const reg = await navigator.serviceWorker?.getRegistration();
-  const opts = { body, tag, renotify: true, icon: './icon-192.png', badge: './icon-192.png',
+  const opts = { body, tag, renotify: true, requireInteraction: true, silent: false, vibrate: [600,200,600,200,600,200,600],
+    icon: './icon-192.png', badge: './icon-192.png',
     actions: [{ action: 'igual', title: 'Sí, lo mismo' }, { action: 'registrar', title: 'Otra cosa' }], data: { url: './?accion=registrar' } };
   if (reg) reg.showNotification(title, opts); else new Notification(title, { body });
 }
-$('#testNotif').onclick = () => notify('HoraLog · prueba', `¿Qué hiciste desde las ${hhmm(lastEnd())}?`);
+/* ---------- sonido de alarma (Web Audio, sin archivos) ---------- */
+const ALARM_KEY = 'hl_alarm';
+function alarmCfg(){ try { return { tone: 'clasica', vol: 0.8, dur: 30, ...JSON.parse(localStorage.getItem(ALARM_KEY) || '{}') }; } catch { return { tone: 'clasica', vol: 0.8, dur: 30 }; } }
+let actx = null, alarmBus = null;
+function audio(){
+  if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+// el navegador solo deja sonar audio después de un toque: se desbloquea con la primera interacción
+['pointerdown','keydown','touchstart'].forEach(ev => addEventListener(ev, () => audio(), { passive: true }));
+
+function beep(ctx, out, t, freq, len, type = 'square', vol = 1, freqEnd = null){
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (freqEnd) o.frequency.linearRampToValueAtTime(freqEnd, t + len);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+  g.gain.setValueAtTime(vol, t + Math.max(0.01, len - 0.03));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  o.connect(g).connect(out); o.start(t); o.stop(t + len + 0.02);
+}
+const TONES = {
+  clasica: { period: 1.4, play(c, o, t){ for (let i = 0; i < 4; i++) beep(c, o, t + i * 0.2, 880, 0.12, 'square', 0.5); } },
+  sirena:  { period: 1.6, play(c, o, t){ beep(c, o, t, 600, 0.8, 'sawtooth', 0.35, 1250); beep(c, o, t + 0.8, 1250, 0.8, 'sawtooth', 0.35, 600); } },
+  campana: { period: 1.8, play(c, o, t){
+    [[1320, 0.5], [660, 0.35], [1980, 0.15]].forEach(([f, v]) => {
+      const osc = c.createOscillator(), g = c.createGain(); osc.type = 'sine'; osc.frequency.value = f;
+      g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+      osc.connect(g).connect(o); osc.start(t); osc.stop(t + 1.7);
+    }); } },
+  digital: { period: 1.0, play(c, o, t){ beep(c, o, t, 2000, 0.07, 'square', 0.4); beep(c, o, t + 0.12, 2000, 0.07, 'square', 0.4); beep(c, o, t + 0.24, 2000, 0.07, 'square', 0.4); beep(c, o, t + 0.36, 2000, 0.07, 'square', 0.4); } }
+};
+function startAlarm(cfg = alarmCfg()){
+  stopAlarm();
+  navigator.vibrate?.([600,200,600,200,600,200,600]);
+  if (cfg.tone === 'off') return;
+  const ctx = audio(); if (!ctx) return;
+  const tone = TONES[cfg.tone] || TONES.clasica;
+  alarmBus = ctx.createGain(); alarmBus.gain.value = Number(cfg.vol); alarmBus.connect(ctx.destination);
+  // se programa todo de una vez: sigue sonando aunque la pestaña esté en segundo plano
+  const t0 = ctx.currentTime + 0.05, cycles = Math.ceil(Number(cfg.dur) / tone.period);
+  for (let i = 0; i < cycles; i++) tone.play(ctx, alarmBus, t0 + i * tone.period);
+  S.alarmEnd = setTimeout(stopAlarm, Number(cfg.dur) * 1000 + 500);
+}
+function stopAlarm(){
+  clearTimeout(S.alarmEnd); navigator.vibrate?.(0);
+  if (alarmBus) { try { alarmBus.gain.setValueAtTime(0, actx.currentTime); alarmBus.disconnect(); } catch {} alarmBus = null; }
+}
+function showAlarm(title, body){
+  $('#alTitle').textContent = title; $('#alBody').textContent = body;
+  $('#alarm').classList.remove('hidden');
+  startAlarm();
+  if (document.hidden) notify(title, body);
+}
+function hideAlarm(){ stopAlarm(); $('#alarm').classList.add('hidden'); }
+$('#alSame').onclick = () => { hideAlarm(); runAction('igual'); };
+$('#alOther').onclick = () => { hideAlarm(); runAction('registrar'); };
+$('#alStop').onclick = () => stopAlarm();
+$('#alSnooze').onclick = () => {
+  hideAlarm(); clearTimeout(S.snoozeTimer);
+  S.snoozeTimer = setTimeout(() => fireReminder(true), 10 * 60000);
+  toast('Te recuerdo en 10 minutos');
+};
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#alarm').classList.contains('hidden')) stopAlarm(); });
+
+function saveAlarmCfg(){ localStorage.setItem(ALARM_KEY, JSON.stringify({ tone: $('#aTone').value, vol: Number($('#aVol').value), dur: Number($('#aDur').value) })); }
+['#aTone','#aVol','#aDur'].forEach(id => $(id).addEventListener('change', saveAlarmCfg));
+$('#aTone').addEventListener('change', () => startAlarm({ ...alarmCfg(), dur: 3 }));
+$('#testNotif').onclick = () => { saveAlarmCfg(); showAlarm('Prueba de alarma', `¿Qué hiciste desde las ${hhmm(lastEnd())}?`); };
 
 function nextReminderAt(){
   const int = S.schedule.reminder_interval_min || 60;
@@ -818,15 +1009,18 @@ function scheduleReminder(){
   const at = nextReminderAt(); if (!at) return;
   S.reminderTimer = setTimeout(fireReminder, Math.min(at - new Date(), 2147483000));
 }
-async function fireReminder(){
+async function fireReminder(fromSnooze = false){
   if (S.day !== todayStr()) { S.day = todayStr(); }
   await loadDay();
   const le = lastEnd();
   if (new Date() - le > 5*60000){
     const last = [...S.entries].reverse().find(e => !e.is_pause);
-    await notify(`${hhmm(le)} – ${hhmm(roundTo5(new Date()))} · ¿qué hiciste?`, last ? `¿Seguiste con “${last.description.slice(0,60)}”?` : 'Registra tu actividad para sumar XP');
+    const title = `${hhmm(le)} – ${hhmm(roundTo5(new Date()))} · ¿qué hiciste?`;
+    const body = last ? `¿Seguiste con “${last.description.slice(0,60)}”?` : 'Registra tu actividad para sumar XP';
+    showAlarm(title, body);
+    if (!document.hidden) notify(title, body);
   }
-  scheduleReminder();
+  if (!fromSnooze) scheduleReminder();
 }
 
 /* ---------- acciones desde la notificación ---------- */
