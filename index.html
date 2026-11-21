@@ -76,7 +76,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(11,18,32,.92);backdro
 .gap .d{font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:30px 10px}
 
-.fab{position:fixed;right:18px;bottom:86px;z-index:6;min-height:58px;padding:0 22px;border-radius:999px;font-size:17px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.fab{position:fixed;right:max(18px, calc(50% - 362px));bottom:86px;z-index:6;min-height:58px;padding:0 22px;border-radius:999px;font-size:17px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
 nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(11,18,32,.96);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 nav.bottom .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
 nav.bottom button{background:none;border:0;padding:12px 0;color:var(--muted);font-weight:700;font-size:14px}
@@ -88,9 +88,13 @@ nav.bottom button.on{color:var(--accent)}
 .sheet-in{max-width:760px;margin:0 auto}
 .sheet h2{margin:0 0 4px;font-size:19px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
-.chip{flex:0 0 auto;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);font-size:14px;text-align:left;line-height:1.25;white-space:normal}
+.chip:hover{border-color:#3d4d72}
+.chip i{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--c,#64748b)}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.chip.on i{background:var(--accent-ink)}
+.chips-more{background:none;border:0;color:var(--accent);font-weight:700;font-size:14px;padding:6px 2px}
 .toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .toggle{min-height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);font-weight:600;font-size:14px}
 .toggle.on.dossier{background:#7f1d1d;border-color:#b91c1c;color:#fff}
@@ -114,6 +118,7 @@ nav.bottom button.on{color:var(--accent)}
 .btnrow{display:flex;gap:10px;flex-wrap:wrap}
 .btnrow .btn{flex:1;min-width:140px}
 #printArea{background:#fff;color:#111;border-radius:10px;padding:16px;overflow:auto}
+#printArea.snap{width:900px;max-width:none;border-radius:0;overflow:visible;padding:20px}
 .crono{width:100%;border-collapse:collapse;font:13px/1.35 Calibri,Arial,sans-serif;color:#111}
 .crono caption{font-weight:700;font-size:15px;padding:6px 0 12px}
 .crono th{background:#1f3864;color:#fff;font-weight:700;padding:6px;border:1px solid #555}
@@ -197,8 +202,9 @@ nav.bottom button.on{color:var(--accent)}
         <button class="btn primary" id="pdfBtn">PDF / Imprimir</button>
         <button class="btn" id="csvBtn">CSV</button>
         <button class="btn" id="copyBtn">Copiar tabla</button>
+        <button class="btn" id="imgBtn">Copiar como imagen</button>
       </div>
-      <p style="color:var(--muted);font-size:13px;margin:10px 0 0">En PDF: elige “Guardar como PDF” en el diálogo de impresión.</p>
+      <p style="color:var(--muted);font-size:13px;margin:10px 0 0">“Copiar tabla” pega con colores en Outlook, Gmail, Word o Excel. “Copiar como imagen” la pega como foto en correo o WhatsApp. En PDF elige “Guardar como PDF”.</p>
     </div>
     <div id="printArea"></div>
   </main>
@@ -246,8 +252,9 @@ nav.bottom button.on{color:var(--accent)}
       <div><label for="fStart">Desde</label><input id="fStart" type="time" required></div>
       <div><label for="fEnd">Hasta</label><input id="fEnd" type="time" required></div>
     </div>
-    <label>Actividades frecuentes</label>
+    <label>Actividades frecuentes <span style="opacity:.7">(toca una para elegirla)</span></label>
     <div class="chips" id="chips"></div>
+    <button type="button" class="chips-more hidden" id="chipsMore"></button>
     <label for="fDesc">¿Qué hiciste?</label>
     <div class="desc-wrap">
       <textarea id="fDesc" placeholder="Ej.: Se envió 73 exámenes anuales por correo electrónico"></textarea>
@@ -500,17 +507,35 @@ function openSheet({ entry = null, start = null, end = null } = {}){
   $('#shTitle').textContent = entry ? 'Editar actividad' : 'Registrar actividad';
   $('#delBtn').classList.toggle('hidden', !entry);
   $('#fErr').textContent = '';
-  renderChips(); syncToggles();
+  S.chipsAll = false; renderChips(); syncToggles();
   $('#backdrop').classList.remove('hidden'); $('#sheet').classList.remove('hidden');
   if (!entry) setTimeout(() => $('#fDesc').focus({ preventScroll: true }), 150);
 }
 function closeSheet(){ $('#backdrop').classList.add('hidden'); $('#sheet').classList.add('hidden'); stopMic(); }
+const CHIP_LIMIT = 6;
+function chipMatches(){
+  const q = $('#fDesc').value.trim().toLowerCase();
+  const sel = S.templates.find(t => t.id === S.form.template_id);
+  if (!q || (sel && sel.title.toLowerCase() === q)) return S.templates;
+  const words = q.normalize('NFD').replace(/[̀-ͯ]/g, '').split(/\s+/).filter(w => w.length > 2);
+  const norm = t => t.title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const score = t => words.filter(w => norm(t).includes(w)).length;
+  return [...S.templates].sort((x, y) => score(y) - score(x));
+}
 function renderChips(){
   const box = $('#chips'); box.innerHTML = '';
-  for (const t of S.templates){
+  let list = chipMatches();
+  const sel = S.templates.find(t => t.id === S.form.template_id);
+  if (sel) list = [sel, ...list.filter(t => t !== sel)];
+  const shown = S.chipsAll ? list : list.slice(0, CHIP_LIMIT);
+  for (const t of shown){
     const c = document.createElement('button'); c.type = 'button';
-    c.className = 'chip' + (S.form.template_id === t.id ? ' on' : ''); c.textContent = t.title; c.title = t.title;
+    c.className = 'chip' + (S.form.template_id === t.id ? ' on' : '');
+    c.setAttribute('aria-pressed', S.form.template_id === t.id);
+    c.style.setProperty('--c', catColor(t.category_id));
+    c.innerHTML = `<i></i><span>${esc(t.title)}</span>`;
     c.onclick = () => {
+      if (S.form.template_id === t.id) { S.form.template_id = null; renderChips(); return; }
       S.form.template_id = t.id; S.form.category_id = t.category_id;
       S.form.tags = [...(t.default_tags || [])]; S.form.highlighted = t.highlighted; S.form.is_pause = t.is_pause;
       $('#fDesc').value = t.title; if (t.default_unit) $('#fUnit').value = t.default_unit;
@@ -519,7 +544,11 @@ function renderChips(){
     };
     box.appendChild(c);
   }
+  const more = $('#chipsMore'), rest = list.length - CHIP_LIMIT;
+  more.classList.toggle('hidden', rest <= 0);
+  more.textContent = S.chipsAll ? 'Ver menos' : `Ver todas (+${rest})`;
 }
+$('#chipsMore').onclick = () => { S.chipsAll = !S.chipsAll; renderChips(); };
 function syncToggles(){
   $('#tDossier').classList.toggle('on', S.form.tags.includes('DOSSIER'));
   $('#tHl').classList.toggle('on', !!S.form.highlighted);
@@ -529,7 +558,7 @@ $('#tDossier').onclick = () => { const t = S.form.tags; const i = t.indexOf('DOS
 $('#tHl').onclick = () => { S.form.highlighted = !S.form.highlighted; syncToggles(); };
 $('#tPause').onclick = () => { S.form.is_pause = !S.form.is_pause; syncToggles(); };
 $('#cancelBtn').onclick = closeSheet; $('#backdrop').onclick = closeSheet;
-$('#fDesc').addEventListener('input', () => { if (S.form.template_id && $('#fDesc').value !== S.templates.find(t => t.id === S.form.template_id)?.title) { S.form.template_id = null; renderChips(); } });
+$('#fDesc').addEventListener('input', () => { if (S.form.template_id && $('#fDesc').value !== S.templates.find(t => t.id === S.form.template_id)?.title) S.form.template_id = null; renderChips(); });
 
 $('#saveBtn').onclick = async () => {
   const desc = $('#fDesc').value.trim();
@@ -665,13 +694,70 @@ $('#csvBtn').onclick = () => {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `cronograma_${S.day}.csv`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 };
+function inlineTableHtml(){
+  const rows = reportRows(), st = stats(), p = S.profile || {};
+  const anyTag = rows.some(r => r.tags.length);
+  const font = 'font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#000000;';
+  const cell = font + 'border:1px solid #777777;padding:6px 8px;vertical-align:middle;';
+  const th = font + 'background:#1f3864;color:#ffffff;font-weight:bold;text-align:center;border:1px solid #555555;padding:6px 8px;';
+  let h = `<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;${font}">`;
+  h += `<tr><td colspan="2" style="${font}font-weight:bold;font-size:12pt;text-align:center;padding:0 0 8px;border:none">CRONOGRAMA DE ACTIVIDADES – ${dmy(S.day)}</td></tr>`;
+  h += `<tr><th bgcolor="#1f3864" style="${th}width:120px">HORA</th><th bgcolor="#1f3864" style="${th}width:520px">ACTIVIDAD</th>${anyTag ? '<td style="border:none;width:90px"></td>' : ''}</tr>`;
+  for (const r of rows){
+    const bg = r.highlighted ? '#ffff00' : '#ffffff', bgh = r.highlighted ? '#ffff00' : '#f2f2f2';
+    h += `<tr><td bgcolor="${bgh}" style="${cell}background:${bgh};font-weight:bold;text-align:center;white-space:nowrap">${hhmm(r.started_at)} – ${hhmm(r.ended_at)}</td>`;
+    h += `<td bgcolor="${bg}" style="${cell}background:${bg};${r.is_pause ? 'font-weight:bold;' : ''}">${esc(entryText(r))}</td>`;
+    if (anyTag) h += r.tags.length
+      ? `<td bgcolor="#ff0000" style="${font}background:#ff0000;color:#7a0000;text-align:center;border:none;padding:6px 8px;border-left:6px solid #ffffff">${esc(r.tags.join(', '))}</td>`
+      : '<td style="border:none"></td>';
+    h += '</tr>';
+  }
+  h += '</table>';
+  const who = [p.full_name, p.job_title, p.project_code ? 'Proyecto ' + p.project_code : ''].filter(Boolean).map(esc).join(' · ');
+  h += `<p style="${font}font-size:9pt;color:#333333;margin:8px 0 0">${who ? who + ' — ' : ''}Horas efectivas: ${durTxt(st.eff)}</p>`;
+  return h;
+}
 $('#copyBtn').onclick = async () => {
-  const html = $('#printArea').innerHTML;
-  const text = reportRows().map(r => `${hhmm(r.started_at)} – ${hhmm(r.ended_at)}\t${entryText(r)}`).join('\n');
+  const html = inlineTableHtml();
+  const text = reportRows().map(r => `${hhmm(r.started_at)} – ${hhmm(r.ended_at)}\t${entryText(r)}${r.tags.length ? '\t' + r.tags.join(', ') : ''}`).join('\n');
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
-  } catch { await navigator.clipboard.writeText(text); }
-  toast('Tabla copiada: pégala en Excel o en el correo');
+    toast('Tabla copiada con formato: pégala en el correo o en Excel');
+  } catch {
+    // respaldo: seleccionar la tabla con estilos y copiar
+    const box = document.createElement('div'); box.innerHTML = html;
+    box.style.cssText = 'position:fixed;left:-9999px;top:0;background:#fff'; document.body.appendChild(box);
+    const range = document.createRange(); range.selectNodeContents(box);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    const ok = document.execCommand('copy'); sel.removeAllRanges(); box.remove();
+    toast(ok ? 'Tabla copiada con formato' : 'No se pudo copiar', !ok);
+  }
+};
+
+function loadScript(src){ return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+async function tableBlob(){
+  if (!window.html2canvas) await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+  const el = $('#printArea'); el.classList.add('snap');
+  try {
+    const canvas = await window.html2canvas(el, { scale: 2, backgroundColor: '#ffffff', logging: false });
+    return await new Promise(r => canvas.toBlob(r, 'image/png'));
+  } finally { el.classList.remove('snap'); }
+}
+$('#imgBtn').onclick = async () => {
+  const btn = $('#imgBtn'); btn.disabled = true;
+  const blobP = tableBlob();
+  try {
+    if (!window.ClipboardItem || !navigator.clipboard?.write) throw new Error('sin portapapeles');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobP })]);
+    toast('Imagen copiada: pégala con Ctrl+V');
+  } catch {
+    try {
+      const blob = await blobP;
+      const file = new File([blob], `cronograma_${S.day}.png`, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: 'Cronograma ' + dmy(S.day) });
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('Imagen descargada'); }
+    } catch (e) { if (e?.name !== 'AbortError') toast('No se pudo crear la imagen', true); }
+  } finally { btn.disabled = false; }
 };
 
 /* ---------- ajustes ---------- */
