@@ -1,5 +1,5 @@
 /* HoraLog service worker: funciona sin señal y maneja los avisos */
-const CACHE = 'horalog-v2';
+const CACHE = 'horalog-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 
