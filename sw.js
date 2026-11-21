@@ -1,6 +1,6 @@
 /* HoraLog service worker: funciona sin señal y maneja los avisos */
-const CACHE = 'horalog-v3';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png',
+const CACHE = 'horalog-v5';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './gatos-repisa.jpg', './gatos-patron.jpg',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 
 self.addEventListener('install', e => {
@@ -21,7 +21,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
-    if (r.ok && (url.origin === location.origin || url.hostname === 'cdn.jsdelivr.net')) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+    if (r.ok && (url.origin === location.origin || url.hostname === 'cdn.jsdelivr.net' || url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com'))) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
     return r;
   })));
 });
@@ -32,6 +32,7 @@ self.addEventListener('push', e => {
   try { d = e.data ? e.data.json() : {}; } catch { d = { title: 'HoraLog', body: e.data && e.data.text() }; }
   e.waitUntil(self.registration.showNotification(d.title || 'HoraLog', {
     body: d.body || '¿Qué hiciste en la última hora?', tag: d.tag || 'hl-hourly', renotify: true,
+    requireInteraction: true, silent: false, vibrate: [600,200,600,200,600,200,600],
     icon: './icon-192.png', badge: './icon-192.png',
     actions: [{ action: 'igual', title: 'Sí, lo mismo' }, { action: 'registrar', title: 'Otra cosa' }],
     data: { url: './?accion=registrar' }
