@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>HoraLog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -119,6 +121,84 @@ nav.bottom button.on{color:var(--accent)}
 .alarm-actions .wide{grid-column:1/-1}
 input[type=range]{padding:0;accent-color:var(--accent)}
 
+/* Anillo */
+.ring-bg{stroke:var(--line)} .ring-fg{stroke:var(--accent);transition:stroke-dasharray .6s ease} .ring-fg.done{stroke:var(--good)}
+.ring text{fill:var(--text)}
+
+/* Elementos didácticos */
+.hello{display:flex;align-items:center;gap:12px;margin:2px 0 12px}
+.hello h2{margin:0;font-size:20px}
+.hello p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.steps{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.steps-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.steps-head b{flex:1}
+.steps-head button{background:none;border:0;color:var(--muted);font-size:13px;font-weight:700}
+.step{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-top:1px dashed var(--line)}
+.step:first-of-type{border-top:0}
+.step .n{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--card2);border:1.5px solid var(--line);color:var(--muted)}
+.step.ok .n{background:var(--good);border-color:var(--good);color:#fff}
+.step.ok .t{text-decoration:line-through;opacity:.6}
+.step .t{font-weight:700;font-size:15px}
+.step .h{color:var(--muted);font-size:13px}
+.tip{display:flex;gap:10px;align-items:flex-start;background:var(--tip-bg,#1a2540);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+.tip .paw{font-size:20px;line-height:1}
+.tip .tip-title{font-weight:800;margin-bottom:2px}
+.tip .next{margin-left:auto;background:none;border:0;color:var(--accent-strong,var(--accent));font-weight:800;font-size:13px;white-space:nowrap}
+.hero{display:block;width:100%;border-radius:16px;aspect-ratio:736/400;object-fit:cover;margin-bottom:14px}
+.empty-cat{text-align:center;padding:6px 4px 18px;color:var(--muted)}
+.empty-cat img{width:100%;max-width:420px;border-radius:16px;margin-bottom:10px}
+.empty-cat b{display:block;color:var(--text);font-size:17px;margin-bottom:4px}
+.theme-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.theme-pick button{min-height:64px;border-radius:14px;border:2px solid var(--line);font-weight:800;font-size:15px}
+.theme-pick button.on{border-color:var(--accent)}
+.theme-pick .tc{background:#fdf6ec url(./gatos-patron.jpg) center/160px;color:#4a3b32}
+.theme-pick .td{background:#0b1220;color:#eef2f8}
+
+/* ===== Tema Gatitos ===== */
+html.cat{background:#fdf6ec}
+body.cat .chip:hover{border-color:var(--accent)}
+body.cat{
+  --bg:#fdf6ec;--card:#ffffff;--card2:#fff8ef;--line:#f0dfca;--text:#4a3b32;--muted:#9a8574;
+  --accent:#f4a259;--accent-ink:#3d2a1e;--accent-strong:#d9772b;--good:#5aa469;--bad:#e06c6c;--blue:#6f8fa0;
+  --tip-bg:#fff3e0;--radius:20px;
+  font-family:Nunito,ui-rounded,"SF Pro Rounded","Segoe UI",system-ui,sans-serif;
+  background:linear-gradient(rgba(253,246,236,.86),rgba(253,246,236,.86)),url(./gatos-patron.jpg) repeat;
+  background-size:auto,380px auto;background-attachment:fixed;
+}
+body.cat button,body.cat input,body.cat select,body.cat textarea{font-family:inherit}
+body.cat header.top{background:rgba(255,250,243,.93);border-bottom-color:var(--line)}
+body.cat nav.bottom{background:rgba(255,250,243,.97)}
+body.cat .brand .dot{background:var(--accent);color:#fff}
+body.cat .card,body.cat .summary,body.cat .item,body.cat .steps,body.cat .login-card{box-shadow:0 3px 14px rgba(150,100,50,.08)}
+body.cat .item{border-radius:18px}
+body.cat .gap{background:#fff4ef;border-color:#f3b39d;color:#b5543c}
+body.cat .tag{background:#fff8ef}
+body.cat .tag.dossier{background:#ffe5e5;border-color:#f2a7a7;color:#b42323}
+body.cat .tag.hl{background:#fff3c4;border-color:#efd17a;color:#8a6500}
+body.cat .tag.pts{color:#3f8f52;background:#eef8f0;border-color:#c5e6cc}
+body.cat .banner{background:#fff3e0;border-color:#f6c98e;color:#8a5a1e}
+body.cat .btn{box-shadow:0 1px 0 rgba(150,100,50,.08)}
+body.cat .btn.primary{color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.08)}
+body.cat .btn.danger{background:#fff0f0;border-color:#f3b9b9;color:#c0392b}
+body.cat .chip.on{color:#fff}
+body.cat .chip.on i{background:#fff}
+body.cat .toggle.on.dossier{background:#e05656;border-color:#e05656}
+body.cat .toggle.on.hl{background:#f4a259;border-color:#f4a259}
+body.cat .toggle.on.pause{background:#9fb3bf;border-color:#9fb3bf;color:#fff}
+body.cat .mic{background:#fff}
+body.cat .err{color:#c0392b}
+body.cat .toast{background:#effaf1;border-color:#a7dcb2;color:#2f7a42}
+body.cat .toast.bad{background:#fff0f0;border-color:#f3b9b9;color:#c0392b}
+body.cat .backdrop{background:rgba(74,59,50,.35)}
+body.cat .alarm{animation:flashCat 1s ease-in-out infinite alternate}
+@keyframes flashCat{from{background:rgba(244,162,89,.45)}to{background:rgba(224,108,108,.6)}}
+body.cat .alarm-card{border-color:var(--accent)}
+body.cat .daynav .btn{background:#fff}
+body.cat nav.bottom button.on{color:var(--accent-strong)}
+body.cat .pill.xp{color:var(--accent-strong)}
+body.cat .chips-more{color:var(--accent-strong)}
+body.cat ::placeholder{color:#c2b2a3}
+
 /* Toast */
 .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:40;background:#0f2a18;border:1px solid #166534;color:#bbf7d0;padding:10px 16px;border-radius:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s}
 .toast.bad{background:#2a1111;border-color:#7f1d1d;color:#fecaca}
@@ -157,8 +237,9 @@ input[type=range]{padding:0;accent-color:var(--accent)}
 <!-- LOGIN -->
 <section id="login" class="hidden">
   <form class="login-card" id="loginForm">
+    <img class="hero" src="./gatos-repisa.jpg" alt="Cuatro gatitos descansando en una repisa">
     <div class="brand"><span class="dot">H</span>HoraLog</div>
-    <p style="color:var(--muted);margin:8px 0 0">Tu cronograma de actividades, hora por hora.</p>
+    <p style="color:var(--muted);margin:8px 0 0">Registra tu día hora por hora y tu cronograma se arma solo. 🐾</p>
     <label for="lUser">Usuario o correo</label>
     <input id="lUser" autocomplete="username" required>
     <label for="lPass">Contraseña</label>
@@ -184,15 +265,24 @@ input[type=range]{padding:0;accent-color:var(--accent)}
       <div class="day" id="dayLabel"></div>
       <button class="btn" id="nextDay" aria-label="Día siguiente">›</button>
     </div>
+    <div class="hello" id="hello"><div><h2 id="helloTitle"></h2><p id="helloSub"></p></div></div>
+    <div class="steps hidden" id="steps">
+      <div class="steps-head"><span>🐱</span><b>Primeros pasos</b><button id="stepsHide" type="button">Ocultar</button></div>
+      <div class="step" id="st1"><span class="n">1</span><div><div class="t">Activa los avisos</div><div class="h">Te sonará una alarma cada hora para que no se te olvide registrar.</div></div></div>
+      <div class="step" id="st2"><span class="n">2</span><div><div class="t">Registra tu primera actividad</div><div class="h">Toca <b>＋ Registrar</b> o un hueco rojo de la línea de tiempo.</div></div></div>
+      <div class="step" id="st3"><span class="n">3</span><div><div class="t">Usa una actividad frecuente</div><div class="h">Al registrar, toca una opción como “Charla de seguridad” y se llena sola.</div></div></div>
+      <div class="step" id="st4"><span class="n">4</span><div><div class="t">Mira tu reporte</div><div class="h">En la pestaña <b>Reporte</b> está tu cronograma listo para copiar o imprimir.</div></div></div>
+    </div>
+    <div class="tip" id="tip"><span class="paw">🐾</span><div><div class="tip-title">Consejo del gatito</div><span id="tipText"></span></div><button class="next" id="tipNext" type="button">Otro ›</button></div>
     <div class="banner hidden" id="notifBanner">
       <span style="flex:1">Activa los avisos para que HoraLog te recuerde registrar cada hora.</span>
       <button class="btn primary" id="notifBtn">Activar</button>
     </div>
     <div class="summary">
       <svg class="ring" viewBox="0 0 84 84" aria-hidden="true">
-        <circle cx="42" cy="42" r="34" fill="none" stroke="#26324d" stroke-width="9"/>
-        <circle id="ringArc" cx="42" cy="42" r="34" fill="none" stroke="#f5b301" stroke-width="9" stroke-linecap="round" transform="rotate(-90 42 42)" stroke-dasharray="0 214"/>
-        <text id="ringTxt" x="42" y="48" text-anchor="middle" font-size="18" font-weight="800" fill="#eef2f8">0%</text>
+        <circle class="ring-bg" cx="42" cy="42" r="34" fill="none" stroke-width="9"/>
+        <circle id="ringArc" class="ring-fg" cx="42" cy="42" r="34" fill="none" stroke-width="9" stroke-linecap="round" transform="rotate(-90 42 42)" stroke-dasharray="0 214"/>
+        <text id="ringTxt" x="42" y="48" text-anchor="middle" font-size="18" font-weight="800">0%</text>
       </svg>
       <div>
         <h3 id="sumTitle">Turno de hoy</h3>
@@ -224,6 +314,13 @@ input[type=range]{padding:0;accent-color:var(--accent)}
 
   <!-- AJUSTES -->
   <main class="wrap hidden" id="vAju">
+    <div class="card">
+      <h3>Apariencia</h3>
+      <div class="theme-pick">
+        <button type="button" class="tc" data-theme="cat">🐱 Gatitos</button>
+        <button type="button" class="td" data-theme="dark">🌙 Oscuro</button>
+      </div>
+    </div>
     <div class="card">
       <h3>Datos del reporte</h3>
       <label for="sName">Nombre completo</label><input id="sName">
@@ -518,20 +615,22 @@ function render(){
   const st = stats();
   const arc = 2 * Math.PI * 34;
   $('#ringArc').setAttribute('stroke-dasharray', `${arc * st.pct / 100} ${arc}`);
-  $('#ringArc').setAttribute('stroke', st.pct >= 100 ? '#22c55e' : '#f5b301');
+  $('#ringArc').classList.toggle('done', st.pct >= 100);
   $('#ringTxt').textContent = st.pct + '%';
-  $('#sumTitle').textContent = st.gaps.length ? `${st.gaps.length} hueco${st.gaps.length > 1 ? 's' : ''} por registrar` : (S.entries.length ? 'Sin huecos, ¡bien!' : 'Empieza tu registro');
+  $('#sumTitle').textContent = st.pct >= 100 && !st.gaps.length ? '😻 ¡Día completo, excelente!'
+    : st.gaps.length ? `${st.pct >= 70 ? '😸' : st.pct >= 30 ? '🐱' : '😺'} ${st.gaps.length} hueco${st.gaps.length > 1 ? 's' : ''} por registrar`
+    : (S.entries.length ? '😸 Vas al día, ¡bien!' : '😺 ¡Empecemos tu día!');
   $('#sumText').textContent = `${S.entries.length} actividades · ${durTxt(st.eff)} efectivas · +${st.pts} XP hoy`;
   $('#xpPill').textContent = `${(S.profile?.xp || 0) + st.pts} XP`;
 
   const tl = $('#timeline'); tl.innerHTML = '';
   const items = timelineItems();
-  if (!items.length) tl.innerHTML = '<div class="empty">Aún no hay registros para este día.</div>';
+  if (!S.entries.length) tl.innerHTML = `<div class="empty-cat"><img src="./gatos-repisa.jpg" alt="" loading="lazy"><b>${isToday ? 'Tu día está en blanco' : 'Este día no tiene registros'}</b>${isToday ? 'Los gatitos esperan tu primera actividad. Toca <b>＋ Registrar</b> o un hueco rojo.' : 'Puedes completarlo tocando los huecos rojos.'}</div>`;
   for (const it of items){
     const b = document.createElement('button'); b.type = 'button';
     if (it.gap){
       b.className = 'item gap';
-      b.innerHTML = `<div class="t">${hhmm(it.start)}<small>${hhmm(it.end)}</small></div><div><div class="d">Hueco de ${durTxt(minutes(it.start, it.end))} · tocar para registrar</div></div>`;
+      b.innerHTML = `<div class="t">${hhmm(it.start)}<small>${hhmm(it.end)}</small></div><div><div class="d">🐾 Hueco de ${durTxt(minutes(it.start, it.end))}</div><div style="font-size:13px;opacity:.85">Toca aquí y cuéntame qué hiciste</div></div>`;
       b.onclick = () => openSheet({ start: it.start, end: it.end });
     } else {
       const e = it.entry;
@@ -545,6 +644,7 @@ function render(){
     tl.appendChild(b);
   }
   renderReport();
+  greet(); steps();
 }
 
 /* ---------- hoja de registro ---------- */
@@ -648,7 +748,7 @@ $('#saveBtn').onclick = async () => {
       if (S.form.template_id) bumpTemplate(S.form.template_id);
     }
     closeSheet(); await loadDay();
-    if (!S.editing){ const last = S.entries.find(x => x.description === desc && x.started_at === base.started_at); toast(last?.points ? `+${last.points} XP · ¡registrado!` : '¡Registrado!'); }
+    if (!S.editing){ const last = S.entries.find(x => x.description === desc && x.started_at === base.started_at); toast(last?.points ? `🐾 +${last.points} XP · ¡registrado!` : '🐾 ¡Registrado!'); }
     scheduleReminder();
   } catch (err) {
     $('#fErr').textContent = /overlap|conflicting/i.test(err.message) ? 'Ese horario se cruza con otra actividad.' : 'No se pudo guardar: ' + err.message;
@@ -1043,6 +1143,59 @@ function handleUrlAction(){
   if (a) { history.replaceState(null, '', location.pathname); S.day = todayStr(); runAction(a); }
 }
 navigator.serviceWorker?.addEventListener('message', ev => { if (ev.data?.accion) { S.day = todayStr(); loadDay().then(() => runAction(ev.data.accion)); } });
+
+/* ---------- tema ---------- */
+function applyTheme(t){
+  document.body.classList.toggle('cat', t !== 'dark');
+  document.documentElement.classList.toggle('cat', t !== 'dark');
+  document.querySelector('meta[name=theme-color]').setAttribute('content', t === 'dark' ? '#0b1220' : '#fdf6ec');
+  document.querySelectorAll('.theme-pick button').forEach(b => b.classList.toggle('on', b.dataset.theme === t));
+}
+const THEME = () => localStorage.getItem('hl_theme') || 'cat';
+document.querySelectorAll('.theme-pick button').forEach(b => b.onclick = () => { localStorage.setItem('hl_theme', b.dataset.theme); applyTheme(b.dataset.theme); });
+applyTheme(THEME());
+
+/* ---------- saludo, primeros pasos y consejos ---------- */
+const TIPS = [
+  'Toca un <b>hueco rojo</b> y la hora ya viene puesta: solo escribe qué hiciste.',
+  'Si registras dentro de los <b>10 minutos</b> después de terminar, ganas <b>10 XP</b>.',
+  'Agrega la <b>cantidad</b> (por ejemplo 73 exámenes) y suma <b>3 XP</b> extra.',
+  'Cuando suene la alarma, pulsa <b>“Sí, lo mismo”</b> si seguiste con la misma tarea.',
+  'Toca el <b>🎤</b> para dictar la actividad en vez de escribirla.',
+  'Marca <b>DOSSIER</b> en lo que necesite evidencia: sale en rojo en el reporte.',
+  'Marca <b>Destacar</b> y la fila se pinta de amarillo en el cronograma.',
+  'En <b>Reporte → Copiar como imagen</b> mandas tu cronograma por WhatsApp.',
+  'Las pausas como <b>SSHH</b> o <b>ALMUERZO</b> no restan puntos.',
+  'Sin señal no pasa nada: lo que registres se envía solo al volver la conexión.'
+];
+let tipIdx = Math.floor(Math.random() * TIPS.length);
+function showTip(){ $('#tipText').innerHTML = TIPS[tipIdx % TIPS.length]; }
+$('#tipNext').onclick = () => { tipIdx++; showTip(); };
+function greet(){
+  const h = new Date().getHours();
+  const name = (S.profile?.full_name || '').trim().split(/\s+/)[0];
+  const nice = name ? ' ' + name.charAt(0).toUpperCase() + name.slice(1).toLowerCase() : '';
+  const [hi, icon] = h < 12 ? ['Buenos días', '☀️'] : h < 19 ? ['Buenas tardes', '🌤️'] : ['Buenas noches', '🌙'];
+  $('#helloTitle').textContent = `${hi}${nice} ${icon}`;
+  const st = stats();
+  $('#helloSub').textContent = S.day !== todayStr() ? 'Estás viendo otro día.'
+    : st.gaps.length ? '¿Qué hiciste en la última hora? Los gatitos quieren saber. 🐾'
+    : S.entries.length ? 'Todo registrado hasta ahora. ¡Sigue así!' : 'Registra tu primera actividad del turno.';
+}
+function steps(){
+  const done = JSON.parse(localStorage.getItem('hl_steps') || '{}');
+  if (S.entries.length) done.s2 = true;
+  if (S.entries.some(e => e.template_id)) done.s3 = true;
+  if ('Notification' in window && Notification.permission === 'granted') done.s1 = true;
+  localStorage.setItem('hl_steps', JSON.stringify(done));
+  ['s1','s2','s3','s4'].forEach((k, i) => $('#st' + (i + 1)).classList.toggle('ok', !!done[k]));
+  const all = ['s1','s2','s3','s4'].every(k => done[k]);
+  $('#steps').classList.toggle('hidden', all || localStorage.getItem('hl_steps_hidden') === '1');
+}
+function markStep(k){ const d = JSON.parse(localStorage.getItem('hl_steps') || '{}'); d[k] = true; localStorage.setItem('hl_steps', JSON.stringify(d)); steps(); }
+$('#stepsHide').onclick = () => { localStorage.setItem('hl_steps_hidden', '1'); steps(); };
+document.querySelector('nav.bottom button[data-v=vRep]').addEventListener('click', () => markStep('s4'));
+showTip();
 
 /* ---------- conexión ---------- */
 function netState(){ const on = navigator.onLine; $('#netPill').style.color = on ? '#22c55e' : '#ef4444'; $('#netPill').title = on ? 'En línea' : 'Sin conexión'; if (on) flushOutbox(); }
