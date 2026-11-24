@@ -654,6 +654,7 @@ function lastEnd(){
 }
 function openSheet({ entry = null, start = null, end = null } = {}){
   S.editing = entry;
+  S.sheetDay = entry?.day || S.day;
   const f = S.form = entry ? {
     template_id: entry.template_id, category_id: entry.category_id, tags: [...(entry.tags || [])],
     highlighted: entry.highlighted, is_pause: entry.is_pause
@@ -723,11 +724,12 @@ $('#fDesc').addEventListener('input', () => { if (S.form.template_id && $('#fDes
 
 $('#saveBtn').onclick = async () => {
   const desc = $('#fDesc').value.trim();
-  const s = atTime(S.day, $('#fStart').value), e = atTime(S.day, $('#fEnd').value);
+  const day = S.sheetDay || S.day;
+  const s = atTime(day, $('#fStart').value), e = atTime(day, $('#fEnd').value);
   if (e <= s) e.setDate(e.getDate() + 1);
   if (!desc) return $('#fErr').textContent = 'Escribe o elige una actividad.';
   if (!$('#fStart').value || !$('#fEnd').value) return $('#fErr').textContent = 'Completa las horas.';
-  const clash = S.entries.find(x => x.id !== S.editing?.id && new Date(x.started_at) < e && new Date(x.ended_at) > s);
+  const clash = day !== S.day ? null : S.entries.find(x => x.id !== S.editing?.id && new Date(x.started_at) < e && new Date(x.ended_at) > s);
   if (clash) return $('#fErr').textContent = `Se cruza con “${clash.description.slice(0,40)}” (${hhmm(clash.started_at)}–${hhmm(clash.ended_at)}).`;
   const qty = $('#fQty').value === '' ? null : Number($('#fQty').value);
   const base = {
@@ -743,7 +745,7 @@ $('#saveBtn').onclick = async () => {
       await writeOp({ type: 'update', id: S.editing.id, patch });
       toast('Actividad actualizada');
     } else {
-      const row = { id: uuid(), user_id: S.user.id, day: S.day, ...base, source: S.form.source || (S.day === todayStr() ? 'manual' : 'backfill'), captured_at: new Date().toISOString() };
+      const row = { id: uuid(), user_id: S.user.id, day, ...base, source: S.form.source || (day === todayStr() ? 'manual' : 'backfill'), captured_at: new Date().toISOString() };
       await writeOp({ type: 'insert', row });
       if (S.form.template_id) bumpTemplate(S.form.template_id);
     }
@@ -751,7 +753,14 @@ $('#saveBtn').onclick = async () => {
     if (!S.editing){ const last = S.entries.find(x => x.description === desc && x.started_at === base.started_at); toast(last?.points ? `🐾 +${last.points} XP · ¡registrado!` : '🐾 ¡Registrado!'); }
     scheduleReminder();
   } catch (err) {
-    $('#fErr').textContent = /overlap|conflicting/i.test(err.message) ? 'Ese horario se cruza con otra actividad.' : 'No se pudo guardar: ' + err.message;
+    if (/overlap|conflicting/i.test(err.message)) {
+      $('#fErr').textContent = 'Ese horario se cruza con otra actividad.';
+      const { data } = await sb.from('hl_entries').select('id,day,started_at,ended_at,description')
+        .eq('user_id', S.user.id).is('deleted_at', null).lt('started_at', e.toISOString()).gt('ended_at', s.toISOString())
+        .neq('id', S.editing?.id || '00000000-0000-0000-0000-000000000000').limit(1);
+      const c = data?.[0];
+      if (c) $('#fErr').textContent = `Se cruza con “${c.description.slice(0,50)}” del ${dmy(c.day)} (${hhmm(c.started_at)}–${hhmm(c.ended_at)}). Ajusta las horas o edita esa actividad.`;
+    } else $('#fErr').textContent = 'No se pudo guardar: ' + err.message;
   } finally { $('#saveBtn').disabled = false; S.form.source = null; }
 };
 async function writeOp(op){
@@ -1110,6 +1119,12 @@ function scheduleReminder(){
   S.reminderTimer = setTimeout(fireReminder, Math.min(at - new Date(), 2147483000));
 }
 async function fireReminder(fromSnooze = false){
+  if (!$('#sheet').classList.contains('hidden')) {
+    // estás registrando algo: no cambies de día ni recargues, solo avisa
+    showAlarm('¿Qué hiciste en la última hora?', 'Termina el registro que tienes abierto y guarda. 🐾');
+    if (!fromSnooze) scheduleReminder();
+    return;
+  }
   if (S.day !== todayStr()) { S.day = todayStr(); }
   await loadDay();
   const le = lastEnd();
@@ -1200,7 +1215,16 @@ showTip();
 /* ---------- conexión ---------- */
 function netState(){ const on = navigator.onLine; $('#netPill').style.color = on ? '#22c55e' : '#ef4444'; $('#netPill').title = on ? 'En línea' : 'Sin conexión'; if (on) flushOutbox(); }
 addEventListener('online', netState); addEventListener('offline', netState);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.user) { if (S.day !== todayStr()) S.day = todayStr(); loadDay(); scheduleReminder(); } });
+S.lastToday = todayStr();
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || !S.user) return;
+  const sheetOpen = !$('#sheet').classList.contains('hidden');
+  // solo salta al día nuevo si estabas mirando "Hoy" y cambió la fecha; nunca con la hoja abierta
+  if (!sheetOpen && S.day === S.lastToday && S.day !== todayStr()) S.day = todayStr();
+  S.lastToday = todayStr();
+  if (!sheetOpen) loadDay();
+  scheduleReminder();
+});
 
 netState(); boot();
 </script>
